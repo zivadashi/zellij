@@ -3953,71 +3953,72 @@ impl Tab {
             self.unset_fullscreen();
         }
         self.dissolve_stack_lists_for_classic_mutation();
-        if self.tiled_panes.can_split_pane_vertically(client_id) {
-            if let PaneId::Terminal(term_pid) = pid {
-                let next_terminal_position = self.get_next_terminal_position();
-                let mut new_terminal = TerminalPane::new(
-                    term_pid,
-                    PaneGeom::default(), // the initial size will be set later
-                    self.style,
-                    next_terminal_position,
-                    String::new(),
-                    self.link_handler.clone(),
-                    self.character_cell_size.clone(),
-                    self.sixel_image_store.clone(),
-                    self.kitty_image_store.clone(),
-                    self.terminal_emulator_colors.clone(),
-                    self.terminal_emulator_color_codes.clone(),
-                    initial_pane_title,
-                    None,
-                    self.debug,
-                    self.arrow_fonts,
-                    self.styled_underlines,
-                    self.osc8_hyperlinks,
-                    self.explicitly_disable_kitty_keyboard_protocol,
-                    completion_tx,
-                )
-                .with_grapheme_clusters(self.grapheme_clusters);
-                if let Some(supported) = self.kitty_host_support {
-                    new_terminal.update_kitty_host_support(supported);
-                }
-                if let Some(supported) = self.sixel_host_support {
-                    new_terminal.update_sixel_host_support(supported);
-                }
-                if let Some(borderless) = borderless {
-                    new_terminal.set_borderless(borderless);
-                }
-                if let Some(new_terminal) =
-                    self.tiled_panes
-                        .split_pane_vertically(pid, Box::new(new_terminal), client_id)
-                {
-                    self.close_unplaced_pane(
-                        new_terminal,
-                        Some(client_id),
-                        PaneNotCreatedReason::NoRoom,
-                    );
-                    return Ok(());
-                }
-                self.set_should_clear_display_before_rendering();
-                self.tiled_panes.focus_pane(pid, client_id);
-                self.swap_layouts.set_is_tiled_damaged();
-            } else {
-                self.close_unplaced_pane_id(
-                    pid,
-                    completion_tx,
-                    Some(client_id),
-                    PaneNotCreatedReason::SplitNotSupportedForPluginPanes,
-                );
+        // if self.tiled_panes.can_split_pane_vertically(client_id) {
+        if let PaneId::Terminal(term_pid) = pid {
+            let next_terminal_position = self.get_next_terminal_position();
+            let mut new_terminal = TerminalPane::new(
+                term_pid,
+                PaneGeom::default(), // the initial size will be set later
+                self.style,
+                next_terminal_position,
+                String::new(),
+                self.link_handler.clone(),
+                self.character_cell_size.clone(),
+                self.sixel_image_store.clone(),
+                self.kitty_image_store.clone(),
+                self.terminal_emulator_colors.clone(),
+                self.terminal_emulator_color_codes.clone(),
+                initial_pane_title,
+                None,
+                self.debug,
+                self.arrow_fonts,
+                self.styled_underlines,
+                self.osc8_hyperlinks,
+                self.explicitly_disable_kitty_keyboard_protocol,
+                completion_tx,
+            )
+            .with_grapheme_clusters(self.grapheme_clusters);
+            if let Some(supported) = self.kitty_host_support {
+                new_terminal.update_kitty_host_support(supported);
             }
+            if let Some(supported) = self.sixel_host_support {
+                new_terminal.update_sixel_host_support(supported);
+            }
+            if let Some(borderless) = borderless {
+                new_terminal.set_borderless(borderless);
+            }
+            if let Some(new_terminal) =
+                self.tiled_panes
+                    .split_pane_vertically(pid, Box::new(new_terminal), client_id)
+            {
+                self.close_unplaced_pane(
+                    new_terminal,
+                    Some(client_id),
+                    PaneNotCreatedReason::NoRoom,
+                );
+                return Ok(());
+            }
+            self.set_should_clear_display_before_rendering();
+            self.tiled_panes.focus_pane(pid, client_id);
+            self.swap_layouts.set_is_tiled_damaged();
         } else {
-            log::error!("No room to split pane vertically");
             self.close_unplaced_pane_id(
                 pid,
                 completion_tx,
                 Some(client_id),
-                PaneNotCreatedReason::NoRoom,
+                PaneNotCreatedReason::SplitNotSupportedForPluginPanes,
             );
         }
+        // } else {
+        //     log::info!("here! Can't add pane to group");
+        //     log::error!("No room to split pane vertically");
+        //     self.close_unplaced_pane_id(
+        //         pid,
+        //         completion_tx,
+        //         Some(client_id),
+        //         PaneNotCreatedReason::NoRoom,
+        //     );
+        // }
         Ok(())
     }
 
