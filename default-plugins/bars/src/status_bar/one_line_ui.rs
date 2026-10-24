@@ -1523,8 +1523,15 @@ fn get_keys_and_hints(mi: &ModeInfo) -> Vec<(String, String, Vec<KeyWithModifier
         (s("Toggle Floating"), s("Floating"),
             single_action_key(&km, &[A::ToggleFloatingPanes, TO_NORMAL])),
         (s("Toggle Embed"), s("Embed"), single_action_key(&km, &[A::TogglePaneEmbedOrFloating, TO_NORMAL])),
-        (s("Split Right"), s("Right"), single_action_key(&km, &[A::NewPane{direction: Some(Direction::Right), pane_name: None, start_suppressed: false}, TO_NORMAL])),
-        (s("Split Down"), s("Down"), single_action_key(&km, &[A::NewPane{direction: Some(Direction::Down), pane_name: None, start_suppressed: false}, TO_NORMAL])),
+        (s("Split Down"), s("Down"), action_key(&km, &[A::NewPane{direction: Some(Direction::Down), pane_name: None, start_suppressed: false}, TO_NORMAL])),
+        (s("Split Right"), s("Right"), action_key(&km, &[A::NewPane{direction: Some(Direction::Right), pane_name: None, start_suppressed: false}, TO_NORMAL])),
+        (s("Split 4 Way"), s("4 Way"), action_key(&km, &[
+            A::NewPane{direction: Some(Direction::Right), pane_name: None, start_suppressed: false},
+            A::NewPane{direction: Some(Direction::Down), pane_name: None, start_suppressed: false},
+            A::MoveFocus{direction: Dir::Left},
+            A::NewPane{direction: Some(Direction::Down), pane_name: None, start_suppressed: false},
+            A::MoveFocus{direction: Dir::Up},
+            TO_NORMAL])),
         (s("Stack"), s("Stack"), single_action_key(&km, &[A::NewStackedPane{command: None, pane_name: None, near_current_pane: false, no_focus: false, tab_id: None}, TO_NORMAL])),
         (s("Select pane"), s("Select"), to_basemode_key),
     ]} else if mi.mode == IM::Tab {
